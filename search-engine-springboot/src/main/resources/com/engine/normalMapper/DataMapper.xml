@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.engine.normalMapper.normDataMapper">
+
+    <update id="updateclickNum">
+        update `data` set click_num = click_num+1 where id=${id}
+    </update>
+    <select id="top" resultType="com.engine.domain.data">
+        select id,url,caption from `data` where id != 1 order BY click_num desc,id asc  LIMIT 0,${num};
+    </select>
+</mapper>

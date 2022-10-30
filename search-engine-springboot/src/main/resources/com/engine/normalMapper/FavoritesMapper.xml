@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.engine.normalMapper.FavoritesMapper">
+<!--    根据用户id创建收藏夹数据库，数据库表名是 用户id-->
+    <update id="createFavoriteTable">
+        CREATE TABLE If NOT EXISTS `${userid}`  (
+               `id` bigint NOT NULL AUTO_INCREMENT,
+               `favorite_name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+               `data_id` int NOT NULL,
+                PRIMARY KEY (`id`) USING BTREE,
+                INDEX `data_id`(`data_id`) USING BTREE,
+                UNIQUE (`favorite_name`,`data_id`)
+                CONSTRAINT `${userid}` FOREIGN KEY (`data_id`) REFERENCES `data` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+        ) ENGINE = InnoDB CHARACTER SET = utf8mb3 COLLATE = utf8mb3_general_ci ROW_FORMAT = Dynamic;
+    </update>
+
+    <!--    查询用户所有收藏夹名-->
+    <select id="getAllFavoritesName" resultType="java.lang.String">
+        select favorite_name from `${userid}` group by favorite_name;
+    </select>
+
+<!--    查询收藏夹的所有内容-->
+    <select id="getAllCaptionByFavoritesName" resultType="java.lang.String">
+        select caption from `${user_id}` a  JOIN `data`  b on a.data_id = b.id where a.favorite_name=#{FavoritesName} and data_id!=1;
+    </select>
+
+    <select id="countFavoriteName" resultType="java.lang.Integer">
+        select count(*) from `${user_id}` where favorite_name=#{FavoritesName};
+    </select>
+    <select id="getDataidsByFavoriteName" resultType="java.lang.Integer">
+        select data_id from `${user_id}` where favorite_name=#{FavoritesName};
+    </select>
+
+    <!--    删除/批量删除 收藏内容-->
+    <delete id="DeleteContentsForFavoritesName">
+        delete from `${user_id}` where favorite_name=#{FavoritesName} and
+        <foreach collection="data_ids" open="data_id in (" close=")" item="data_id" separator=",">
+            ${data_id}
+        </foreach>
+    </delete>
+    <!--    添加/批量添加 收藏内容-->
+    <update id="AddContentsForFavoritesName">
+        insert into `${user_id}` values
+        <foreach collection="data_ids" separator="," item="data_id">
+            (NULL ,#{FavoritesName},${data_id})
+        </foreach>
+    </update>
+
+
+    <!--    删除收藏夹-->
+    <delete id="DeleteFavorite">
+        delete from `${user_id}` where favorite_name=#{FavoritesName}
+    </delete>
+<!--    修改收藏夹名-->
+    <update id="UpdataFavorite">
+        update `${user_id}` set favorite_name=#{newFavoritesName} where favorite_name=#{FavoritesName}
+    </update>
+
+</mapper>

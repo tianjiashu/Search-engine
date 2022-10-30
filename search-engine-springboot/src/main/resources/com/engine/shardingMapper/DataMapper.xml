@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.engine.shardingMapper.DataMapper">
+    <select id="GetPartData" resultType="com.engine.domain.data">
+        select * from data limit #{start},#{length};
+    </select>
+    <select id="QueryData" resultType="java.lang.Integer">
+        select
+            data_id
+        from
+            data_seg_relation
+        <where>
+            <foreach collection="ids" open="seg_id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+        GROUP BY data_id order by sum(tidif_value) DESC
+    </select>
+</mapper>

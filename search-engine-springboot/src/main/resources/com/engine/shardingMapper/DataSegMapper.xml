@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.engine.shardingMapper.DataSegMapper">
+    <insert id="insertBatch" statementType="STATEMENT">
+        insert into ${TableName}(data_id, seg_id, tidif_value, count)
+        values
+        <foreach collection="relations" item="item" separator=",">
+            (
+                ${item.dataId},
+                ${item.segId},
+                ${item.tidifValue},
+                ${item.count}
+            )
+        </foreach>
+    </insert>
+    <update id="createTable">
+        CREATE TABLE if not exists ${TableName} (
+         `id` int primary key NOT NULL AUTO_INCREMENT,
+         `data_id` int NOT NULL,
+         `seg_id` bigint NOT NULL,
+         `tidif_value` double NULL DEFAULT NULL,
+         `count` int NULL DEFAULT NULL,
+         INDEX `index`(`seg_id`) USING BTREE
+          )
+    </update>
+    <update id="DropTable">
+        drop table if exists ${TableName};
+    </update>
+
+</mapper>

@@ -1,0 +1,96 @@
+web:
+  upload-path: G:/images
+
+soc_host: "127.0.0.1"
+soc_port: 50000
+
+snowflake:
+  machine-id: 1
+  data-center-id: 1
+
+
+spring:
+  #=====================普通数据源配置============
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/favorites?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: root
+      password: root
+  #=====================shardingsphere数据源配置==============
+#  main:
+#    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      names: master
+      master:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/my_search_engine?serverTimezone=UTC
+        username: root
+        password: root
+    sharding:
+      tables:
+        data_seg_relation:
+          actual-data-nodes: master.data_seg_relation_$->{0..99}
+          key-generator:
+            column: id
+            type: SNOWFLAKE
+          table-strategy:
+            inline:
+              algorithm-expression: data_seg_relation_$->{seg_id % 100}
+              sharding-column: seg_id
+    props:
+      sql:
+        show: true
+  #=====================shardingsphere配置==============
+
+  application:
+    name: spring-boot
+  resources:
+    static-locations:
+      - file:${web.upload-path}
+      - classpath:/static/
+  #redis配置
+  redis:
+    host: localhost #124.70.110.9
+    port: 6379
+    database: 0
+    timeout: 3000
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 3
+        min-idle: 0
+        max-wait: -1
+#    password: 123456
+
+server:
+  port: 9090
+
+
+#mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  type-aliases-package: com.searchengine.entity
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  global-config:
+#    db-config:
+#      id-type: auto
+
+swagger:
+  title: 小型搜索引擎项目
+  version: 1.1.0.RELEASE
+  description: 模仿百度的小型搜索引擎
+  base-package: com.engine
+  base-path: /**
+  contact:
+    name: 田佳澍
+    url: http://luckydog123.top
+    email: 928301810@qq.com
+  license: Apache License, Version 2.0
+  license-url: https://www.apache.org/licenses/LICENSE-2.0.html
+  terms-of-service-url: https://github.com/dyc87112/spring-boot-starter-swagger
+
+
